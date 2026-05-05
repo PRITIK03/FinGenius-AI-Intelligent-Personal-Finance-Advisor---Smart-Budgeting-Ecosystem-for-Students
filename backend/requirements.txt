@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+motor
+pymongo
+pydantic
+pydantic-settings
+python-dotenv
+scikit-learn
+pandas
+numpy
+httpx
