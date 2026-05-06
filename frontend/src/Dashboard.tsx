@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, type FC } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   PieChart as PieChartIcon, 
@@ -16,9 +16,7 @@ import {
   Menu,
   X,
   Download,
-  LogOut,
-  Calendar,
-  ChevronDown
+  LogOut
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -54,7 +52,6 @@ const categoryIcons: { [key: string]: string } = {
 };
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
@@ -415,7 +412,7 @@ const Dashboard = () => {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {pieData.map((entry, index) => (
+                    {pieData.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

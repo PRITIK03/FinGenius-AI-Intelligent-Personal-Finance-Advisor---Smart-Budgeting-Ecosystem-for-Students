@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target, Plus, Trash2, Edit2, TrendingUp, Calendar, Loader2, PiggyBank } from 'lucide-react';
 import { getGoals, getGoalsSummary, createGoal, updateGoal, deleteGoal, contributeToGoal } from '../api';

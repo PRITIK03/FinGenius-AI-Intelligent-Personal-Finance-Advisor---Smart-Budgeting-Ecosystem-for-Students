@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, Plus, Trash2, Edit2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { getBudgets, getBudgetAlerts, createBudget, updateBudget, deleteBudget } from '../api';
