@@ -8,6 +8,7 @@ class Expense(BaseModel):
     category: str
     description: str
     date: datetime = Field(default_factory=datetime.now)
+    user_id: Optional[str] = None
 
     class Config:
         populate_by_name = True
@@ -23,4 +24,11 @@ class Expense(BaseModel):
 class ExpenseCreate(BaseModel):
     amount: float
     description: str
+    category: Optional[str] = None  # Optional - will be auto-categorized if not provided
+    date: Optional[datetime] = None
+
+class ExpenseUpdate(BaseModel):
+    amount: Optional[float] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
     date: Optional[datetime] = None

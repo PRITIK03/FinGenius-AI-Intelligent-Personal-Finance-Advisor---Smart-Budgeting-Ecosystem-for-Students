@@ -9,3 +9,8 @@ scikit-learn
 pandas
 numpy
 httpx
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+reportlab
+openpyxl

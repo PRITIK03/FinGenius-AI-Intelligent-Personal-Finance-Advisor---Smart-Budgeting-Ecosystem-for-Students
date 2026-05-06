@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   PieChart as PieChartIcon, 
@@ -8,7 +9,16 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   Sparkles,
-  Loader2
+  Loader2,
+  Edit2,
+  Trash2,
+  Target,
+  Menu,
+  X,
+  Download,
+  LogOut,
+  Calendar,
+  ChevronDown
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -23,31 +33,64 @@ import {
   Cell
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getExpenses, getSummary, getPrediction, getAIAdvice, addExpense } from './api';
+import { 
+  getExpenses, getSummary, getPrediction, getAIAdvice, 
+  addExpense, updateExpense, deleteExpense, getCategories, exportCSV,
+  getGoalsSummary
+} from './api';
+import { useAuth } from './context/AuthContext';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b', '#14b8a6'];
+
+const categoryIcons: { [key: string]: string } = {
+  Food: '🍔',
+  Travel: '🚗',
+  Education: '📚',
+  Entertainment: '🎮',
+  Shopping: '🛍️',
+  Health: '💊',
+  Bills: '📄',
+  Others: '📦'
+};
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [expenses, setExpenses] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [prediction, setPrediction] = useState<any>(null);
+  const [goalsSummary, setGoalsSummary] = useState<any>(null);
   const [advice, setAdvice] = useState<string[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<any>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const [newExpense, setNewExpense] = useState({ 
+    amount: '', 
+    description: '', 
+    category: '',
+    date: new Date().toISOString().split('T')[0]
+  });
 
   const fetchData = async () => {
     try {
-      const [expRes, sumRes, predRes, advRes] = await Promise.all([
+      const [expRes, sumRes, predRes, advRes, catRes, goalsRes] = await Promise.all([
         getExpenses(),
         getSummary(),
         getPrediction(),
-        getAIAdvice()
+        getAIAdvice(),
+        getCategories(),
+        getGoalsSummary().catch(() => ({ data: null }))
       ]);
       setExpenses(expRes.data);
       setSummary(sumRes.data);
       setPrediction(predRes.data);
-      setAdvice(advRes.data.advice);
+      setAdvice(advRes.data.advice || []);
+      setCategories(catRes.data?.categories || []);
+      setGoalsSummary(goalsRes.data);
     } catch (error) {
       console.error("Error fetching data", error);
     } finally {
@@ -64,14 +107,67 @@ const Dashboard = () => {
     try {
       await addExpense({ 
         amount: parseFloat(newExpense.amount), 
-        description: newExpense.description 
+        description: newExpense.description,
+        category: newExpense.category || undefined,
+        date: newExpense.date
       });
-      setNewExpense({ amount: '', description: '' });
+      setNewExpense({ amount: '', description: '', category: '', date: new Date().toISOString().split('T')[0] });
       setShowAddModal(false);
       fetchData();
     } catch (error) {
       console.error("Error adding expense", error);
     }
+  };
+
+  const handleEditExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingExpense) return;
+    try {
+      await updateExpense(editingExpense._id, {
+        amount: parseFloat(editingExpense.amount),
+        description: editingExpense.description,
+        category: editingExpense.category,
+        date: editingExpense.date
+      });
+      setEditingExpense(null);
+      setShowEditModal(false);
+      fetchData();
+    } catch (error) {
+      console.error("Error updating expense", error);
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this expense?')) return;
+    try {
+      await deleteExpense(id);
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting expense", error);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await exportCSV();
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'expenses.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting", error);
+    }
+  };
+
+  const startEditing = (expense: any) => {
+    setEditingExpense({
+      ...expense,
+      date: new Date(expense.date).toISOString().split('T')[0]
+    });
+    setShowEditModal(true);
   };
 
   if (loading) {
@@ -81,6 +177,12 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  // Calculate dynamic values
+  const monthlyIncome = user?.monthly_income || 0;
+  const totalSpending = summary?.total_spending || 0;
+  const actualSavings = Math.max(0, monthlyIncome - totalSpending);
+  const totalBalance = actualSavings + (goalsSummary?.total_saved || 0);
 
   const chartData = expenses.slice(0, 7).reverse().map(e => ({
     date: new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -104,42 +206,111 @@ const Dashboard = () => {
         </div>
         
         <nav className="space-y-1 flex-1">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-medium transition-all">
+          <Link to="/" className="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-medium transition-all">
             <LayoutDashboard className="w-5 h-5" />
             Dashboard
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium transition-all">
+          </Link>
+          <Link to="/analytics" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium transition-all">
             <TrendingUp className="w-5 h-5" />
             Analytics
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium transition-all">
+          </Link>
+          <Link to="/budgets" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium transition-all">
             <PieChartIcon className="w-5 h-5" />
             Budgets
-          </a>
+          </Link>
+          <Link to="/goals" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium transition-all">
+            <Target className="w-5 h-5" />
+            Goals
+          </Link>
         </nav>
 
-        <div className="mt-auto p-4 bg-blue-600 rounded-2xl text-white">
-          <p className="text-xs text-blue-100 mb-1">Total Balance</p>
-          <p className="text-xl font-bold">₹12,450</p>
+        <div className="space-y-3">
+          <div className="p-4 bg-blue-600 rounded-2xl text-white">
+            <p className="text-xs text-blue-100 mb-1">Total Balance</p>
+            <p className="text-xl font-bold">₹{totalBalance.toFixed(0)}</p>
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="mt-4 w-full bg-white text-blue-600 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add Expense
+            </button>
+          </div>
+          
           <button 
-            onClick={() => setShowAddModal(true)}
-            className="mt-4 w-full bg-white text-blue-600 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+            onClick={handleExport}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-slate-500 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all"
           >
-            <PlusCircle className="w-4 h-4" />
-            Add Expense
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+          
+          <button 
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl text-sm font-medium transition-all"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
           </button>
         </div>
       </div>
 
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-slate-200 p-4 z-40">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Wallet className="text-white w-5 h-5" />
+            </div>
+            <h1 className="text-lg font-bold text-slate-900">FinGenius AI</h1>
+          </div>
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+        
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 space-y-2"
+            >
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-medium">
+                <LayoutDashboard className="w-5 h-5" /> Dashboard
+              </Link>
+              <Link to="/analytics" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-slate-500">
+                <TrendingUp className="w-5 h-5" /> Analytics
+              </Link>
+              <Link to="/budgets" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-slate-500">
+                <PieChartIcon className="w-5 h-5" /> Budgets
+              </Link>
+              <Link to="/goals" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-slate-500">
+                <Target className="w-5 h-5" /> Goals
+              </Link>
+              <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-red-500 w-full">
+                <LogOut className="w-5 h-5" /> Logout
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex justify-between items-center mb-8 mt-16 md:mt-0">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Good morning, Student!</h2>
+            <h2 className="text-2xl font-bold text-slate-900">
+              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {user?.full_name?.split(' ')[0] || 'Student'}!
+            </h2>
             <p className="text-slate-500">Here's what's happening with your money today.</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm"></div>
+            <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center text-blue-600 font-bold">
+              {user?.full_name?.charAt(0) || 'S'}
+            </div>
           </div>
         </header>
 
@@ -190,9 +361,18 @@ const Dashboard = () => {
               <div className="p-3 bg-amber-50 rounded-2xl">
                 <Wallet className="text-amber-600 w-6 h-6" />
               </div>
+              <span className={`flex items-center text-sm font-medium px-2 py-1 rounded-lg ${
+                actualSavings >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'
+              }`}>
+                {actualSavings >= 0 ? <ArrowUpRight className="w-4 h-4 mr-1" /> : <ArrowDownRight className="w-4 h-4 mr-1" />}
+                {monthlyIncome > 0 ? ((actualSavings / monthlyIncome) * 100).toFixed(0) : 0}%
+              </span>
             </div>
             <p className="text-slate-500 text-sm font-medium">Monthly Savings</p>
-            <h3 className="text-3xl font-bold text-slate-900">₹4,200</h3>
+            <h3 className="text-3xl font-bold text-slate-900">₹{actualSavings.toFixed(0)}</h3>
+            {monthlyIncome > 0 && (
+              <p className="text-xs text-slate-400 mt-1">Income: ₹{monthlyIncome.toFixed(0)}</p>
+            )}
           </motion.div>
         </div>
 
@@ -289,9 +469,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
                       <span className="text-xl">
-                        {exp.category === 'Food' ? '🍔' : 
-                         exp.category === 'Travel' ? '🚗' : 
-                         exp.category === 'Education' ? '📚' : '🛍️'}
+                        {categoryIcons[exp.category] || '📦'}
                       </span>
                     </div>
                     <div>
@@ -299,9 +477,25 @@ const Dashboard = () => {
                       <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{exp.category} • {new Date(exp.date).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-900">₹{exp.amount}</p>
-                    <p className="text-xs text-emerald-500 font-semibold">Success</p>
+                  <div className="text-right flex items-center gap-3">
+                    <div>
+                      <p className="font-bold text-slate-900">₹{exp.amount}</p>
+                      <p className="text-xs text-slate-400">{new Date(exp.date).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => startEditing(exp)}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteExpense(exp._id)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -351,6 +545,29 @@ const Dashboard = () => {
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Category (Optional)</label>
+                  <select
+                    value={newExpense.category}
+                    onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  >
+                    <option value="">Auto-categorize</option>
+                    {categories.map((cat) => (
+                      <option key={cat.name} value={cat.name}>{cat.icon} {cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={newExpense.date}
+                    onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
                 <div className="flex gap-3 pt-2">
                   <button 
                     type="button"
@@ -364,6 +581,88 @@ const Dashboard = () => {
                     className="flex-1 px-4 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all"
                   >
                     Save Expense
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Expense Modal */}
+      <AnimatePresence>
+        {showEditModal && editingExpense && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowEditModal(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl"
+            >
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Edit Expense</h3>
+              <form onSubmit={handleEditExpense} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Amount (₹)</label>
+                  <input 
+                    type="number" 
+                    required
+                    value={editingExpense.amount}
+                    onChange={(e) => setEditingExpense({...editingExpense, amount: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={editingExpense.description}
+                    onChange={(e) => setEditingExpense({...editingExpense, description: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Category</label>
+                  <select
+                    value={editingExpense.category}
+                    onChange={(e) => setEditingExpense({...editingExpense, category: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat.name} value={cat.name}>{cat.icon} {cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={editingExpense.date}
+                    onChange={(e) => setEditingExpense({...editingExpense, date: e.target.value})}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button 
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="flex-1 px-4 py-3 border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="flex-1 px-4 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all"
+                  >
+                    Update Expense
                   </button>
                 </div>
               </form>
