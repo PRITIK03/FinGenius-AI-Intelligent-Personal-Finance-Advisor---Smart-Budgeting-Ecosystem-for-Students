@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, type FC } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   PieChart as PieChartIcon, 
