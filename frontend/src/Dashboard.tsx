@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Moon, Sun } from 'lucide-react';
 import { 
   LayoutDashboard, 
   PieChart as PieChartIcon, 
@@ -195,11 +196,22 @@ const Dashboard = () => {
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col hidden md:flex">
-        <div className="flex items-center gap-2 mb-10">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Wallet className="text-white w-5 h-5" />
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Wallet className="text-white w-5 h-5" />
+            </div>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">FinGenius AI</h1>
           </div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">FinGenius AI</h1>
+          <button
+            onClick={() => {
+              setDarkMode(!darkMode);
+              localStorage.setItem('darkMode', (!darkMode).toString());
+            }}
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+          >
+            {darkMode ? <Sun className="w-5 h-5 text-slate-600" /> : <Moon className="w-5 h-5 text-slate-600" />}
+          </button>
         </div>
         
         <nav className="space-y-1 flex-1">
@@ -458,7 +470,12 @@ const Dashboard = () => {
           <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h4 className="text-lg font-bold text-slate-900">Recent Transactions</h4>
-              <button className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">See all</button>
+              <Link 
+                to="/analytics" 
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                See all
+              </Link>
             </div>
             <div className="space-y-4">
               {expenses.slice(0, 5).map((exp, idx) => (
