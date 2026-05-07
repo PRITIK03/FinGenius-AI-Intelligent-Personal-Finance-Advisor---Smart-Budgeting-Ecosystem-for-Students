@@ -193,15 +193,15 @@ const Dashboard = () => {
   })) : [];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className={`min-h-screen ${darkMode ? 'bg-slate-900' : 'bg-slate-50'} flex`}>
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col hidden md:flex">
+      <div className={`w-64 ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-r p-6 flex flex-col hidden md:flex`}>
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Wallet className="text-white w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">FinGenius AI</h1>
+            <h1 className={`text-xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>FinGenius AI</h1>
           </div>
           <button
             onClick={() => {
@@ -265,7 +265,7 @@ const Dashboard = () => {
       </div>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-slate-200 p-4 z-40">
+      <div className={`md:hidden fixed top-0 left-0 right-0 ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-b p-4 z-40`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -308,13 +308,13 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+      <main className={`flex-1 p-4 md:p-8 overflow-y-auto ${darkMode ? 'bg-slate-900' : 'bg-slate-50'}`}>
         <header className="flex justify-between items-center mb-8 mt-16 md:mt-0">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
               Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {user?.full_name?.split(' ')[0] || 'Student'}!
             </h2>
-            <p className="text-slate-500">Here's what's happening with your money today.</p>
+            <p className={darkMode ? 'text-slate-300' : 'text-slate-500'}>Here's what's happening with your money today.</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center text-blue-600 font-bold">
@@ -328,7 +328,7 @@ const Dashboard = () => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+            className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-3 bg-blue-50 rounded-2xl">
@@ -340,14 +340,14 @@ const Dashboard = () => {
               </span>
             </div>
             <p className="text-slate-500 text-sm font-medium">Total Spending</p>
-            <h3 className="text-3xl font-bold text-slate-900">₹{summary?.total_spending || 0}</h3>
+            <h3 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>₹{summary?.total_spending || 0}</h3>
           </motion.div>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+            className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-3 bg-purple-50 rounded-2xl">
@@ -364,7 +364,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+            className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-3 bg-amber-50 rounded-2xl">
@@ -387,7 +387,7 @@ const Dashboard = () => {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}>
             <h4 className="text-lg font-bold text-slate-900 mb-6">Spending Trend</h4>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -410,7 +410,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}>
             <h4 className="text-lg font-bold text-slate-900 mb-6">Category Distribution</h4>
             <div className="h-[300px] flex items-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -686,6 +686,9 @@ const Dashboard = () => {
       </AnimatePresence>
     </div>
   );
+};
+
+export default Dashboard;
 };
 
 export default Dashboard;
