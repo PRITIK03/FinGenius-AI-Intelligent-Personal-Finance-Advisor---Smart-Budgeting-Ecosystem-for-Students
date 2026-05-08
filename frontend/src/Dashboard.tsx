@@ -590,7 +590,7 @@ const Dashboard = () => {
               </AnimatePresence>
             </div>
             <div className="space-y-4">
-              {expenses.slice(0, 5).map((exp, idx) => (
+              {filteredExpenses.slice(0, 5).map((exp, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-2xl transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
@@ -795,12 +795,134 @@ const Dashboard = () => {
             </motion.div>
           </div>
         )}
+
+      {/* CSV Import Modal */}
+      <AnimatePresence>
+        {showImportModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`w-full max-w-md ${darkMode ? 'bg-slate-800' : 'bg-white'} rounded-3xl p-6 shadow-2xl`}
+            >
+              <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Import CSV File</h3>
+              <div className="space-y-4">
+                <div className={`border-2 border-dashed ${darkMode ? 'border-slate-600' : 'border-slate-300'} rounded-2xl p-8 text-center`}>
+                  <Upload className={`w-12 h-12 mx-auto mb-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} />
+                  <p className={`mb-2 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Drop your CSV file here or click to browse</p>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                    id="csv-file"
+                  />
+                  <label
+                    htmlFor="csv-file"
+                    className="inline-block px-4 py-2 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition-colors"
+                  >
+                    Choose File
+                  </label>
+                  {importFile && (
+                    <p className={`mt-2 text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Selected: {importFile.name}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowImportModal(false);
+                      setImportFile(null);
+                    }}
+                    className="flex-1 px-4 py-3 border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleImportCSV}
+                    disabled={!importFile || importing}
+                    className="flex-1 px-4 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {importing ? 'Importing...' : 'Import'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Budget Alerts Modal */}
+      <AnimatePresence>
+        {showAlerts && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`w-full max-w-md ${darkMode ? 'bg-slate-800' : 'bg-white'} rounded-3xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto`}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>Budget Alerts</h3>
+                <button
+                  onClick={() => setShowAlerts(false)}
+                  className={`p-2 rounded-lg ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-100'} transition-colors`}
+                >
+                  <X className={`w-5 h-5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {budgetAlerts.length === 0 ? (
+                  <p className={`text-center py-8 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    No budget alerts at this time. You're on track!
+                  </p>
+                ) : (
+                  budgetAlerts.map((alert, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      className={`p-4 rounded-2xl border ${
+                        alert.type === 'warning' 
+                          ? 'bg-amber-50 border-amber-200' 
+                          : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className={`w-5 h-5 mt-0.5 ${
+                          alert.type === 'warning' ? 'text-amber-600' : 'text-red-600'
+                        }`} />
+                        <div className="flex-1">
+                          <p className={`font-semibold ${
+                            alert.type === 'warning' ? 'text-amber-800' : 'text-red-800'
+                          }`}>
+                            {alert.category}
+                          </p>
+                          <p className={`text-sm mt-1 ${
+                            alert.type === 'warning' ? 'text-amber-700' : 'text-red-700'
+                          }`}>
+                            {alert.message}
+                          </p>
+                          <p className={`text-xs mt-2 ${
+                            alert.type === 'warning' ? 'text-amber-600' : 'text-red-600'
+                          }`}>
+                            Spent: ₹{alert.spent} / ₹{alert.budget}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </div>
   );
-};
-
-export default Dashboard;
 };
 
 export default Dashboard;
