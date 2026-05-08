@@ -17,7 +17,11 @@ import {
   Menu,
   X,
   Download,
-  LogOut
+  LogOut,
+  Upload,
+  Bell,
+  Search,
+  Filter
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -35,7 +39,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   getExpenses, getSummary, getPrediction, getAIAdvice, 
   addExpense, updateExpense, deleteExpense, getCategories, exportCSV,
-  getGoalsSummary
+  getGoalsSummary, importCSV, getBudgetAlerts
 } from './api';
 import { useAuth } from './context/AuthContext';
 
@@ -64,6 +68,17 @@ const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState<any>(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [budgetAlerts, setBudgetAlerts] = useState<any[]>([]);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const [newExpense, setNewExpense] = useState({ 
