@@ -21,7 +21,8 @@ import {
   Upload,
   Bell,
   Search,
-  Filter
+  Filter,
+  AlertCircle
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -210,8 +211,51 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
+      <div className={`min-h-screen ${darkMode ? 'bg-slate-900' : 'bg-slate-50'} flex`}>
+        {/* Sidebar Skeleton */}
+        <div className={`w-64 ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-r p-6 flex-col hidden md:flex`}>
+          <div className="flex items-center gap-2 mb-10">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg animate-pulse"></div>
+            <div className="h-6 w-32 bg-slate-200 rounded animate-pulse"></div>
+          </div>
+          <div className="space-y-3 flex-1">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-12 bg-slate-100 rounded-xl animate-pulse"></div>
+            ))}
+          </div>
+          <div className="space-y-3">
+            <div className="h-24 bg-blue-100 rounded-2xl animate-pulse"></div>
+            <div className="h-10 bg-slate-100 rounded-xl animate-pulse"></div>
+          </div>
+        </div>
+        
+        {/* Main Content Skeletons */}
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+          <div className="mb-8">
+            <div className="h-8 w-64 bg-slate-200 rounded-lg animate-pulse mb-4"></div>
+            <div className="h-4 w-96 bg-slate-100 rounded animate-pulse"></div>
+          </div>
+          
+          {/* Stats Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                <div className="h-4 w-20 bg-slate-200 rounded animate-pulse mb-4"></div>
+                <div className="h-8 w-32 bg-slate-100 rounded animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Charts Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                <div className="h-6 w-32 bg-slate-200 rounded animate-pulse mb-6"></div>
+                <div className="h-[300px] bg-slate-50 rounded-2xl animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </main>
       </div>
     );
   }
