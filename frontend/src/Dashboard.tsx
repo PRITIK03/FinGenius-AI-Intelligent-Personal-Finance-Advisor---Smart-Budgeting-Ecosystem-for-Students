@@ -287,11 +287,30 @@ const Dashboard = () => {
           </div>
           
           <button 
+            onClick={() => setShowImportModal(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-slate-500 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all"
+          >
+            <Upload className="w-4 h-4" />
+            Import CSV
+          </button>
+          
+          <button 
             onClick={handleExport}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 text-slate-500 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all"
           >
             <Download className="w-4 h-4" />
             Export CSV
+          </button>
+          
+          <button 
+            onClick={() => setShowAlerts(!showAlerts)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-slate-500 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all relative"
+          >
+            <Bell className="w-4 h-4" />
+            Alerts
+            {budgetAlerts.length > 0 && (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+            )}
           </button>
           
           <button 
@@ -507,15 +526,68 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className={`lg:col-span-2 ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}>
             <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-bold text-slate-900">Recent Transactions</h4>
-              <Link 
-                to="/analytics" 
-                className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                See all
-              </Link>
+              <h4 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>Recent Transactions</h4>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <Filter className="w-4 h-4 text-slate-600" />
+                </button>
+                <Link 
+                  to="/analytics" 
+                  className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  See all
+                </Link>
+              </div>
+            </div>
+            
+            {/* Search and Filters */}
+            <div className="space-y-3 mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search transactions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`w-full pl-10 pr-4 py-2 rounded-lg border ${darkMode ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-200'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+              </div>
+              
+              <AnimatePresence>
+                {showFilters && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex gap-2 flex-wrap"
+                  >
+                    <select
+                      value={filterCategory}
+                      onChange={(e) => setFilterCategory(e.target.value)}
+                      className={`px-3 py-1 rounded-lg text-sm border ${darkMode ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-200'}`}
+                    >
+                      <option value="">All Categories</option>
+                      {Object.keys(categoryIcons).map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setFilterCategory('');
+                      }}
+                      className="px-3 py-1 rounded-lg text-sm bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    >
+                      Clear
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div className="space-y-4">
               {expenses.slice(0, 5).map((exp, idx) => (
