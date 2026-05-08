@@ -90,13 +90,14 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [expRes, sumRes, predRes, advRes, catRes, goalsRes] = await Promise.all([
+      const [expRes, sumRes, predRes, advRes, catRes, goalsRes, alertsRes] = await Promise.all([
         getExpenses(),
         getSummary(),
         getPrediction(),
         getAIAdvice(),
         getCategories(),
-        getGoalsSummary().catch(() => ({ data: null }))
+        getGoalsSummary().catch(() => ({ data: null })),
+        getBudgetAlerts().catch(() => ({ data: [] }))
       ]);
       setExpenses(expRes.data);
       setSummary(sumRes.data);
@@ -104,6 +105,7 @@ const Dashboard = () => {
       setAdvice(advRes.data.advice || []);
       setCategories(catRes.data?.categories || []);
       setGoalsSummary(goalsRes.data);
+      setBudgetAlerts(alertsRes.data || []);
     } catch (error) {
       console.error("Error fetching data", error);
     } finally {
@@ -182,6 +184,29 @@ const Dashboard = () => {
     });
     setShowEditModal(true);
   };
+
+  const handleImportCSV = async () => {
+    if (!importFile) return;
+    setImporting(true);
+    try {
+      await importCSV(importFile);
+      setImportFile(null);
+      setShowImportModal(false);
+      fetchData();
+    } catch (error) {
+      console.error("Error importing CSV", error);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // Filter expenses based on search and category
+  const filteredExpenses = expenses.filter(exp => {
+    const matchesSearch = exp.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         exp.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !filterCategory || exp.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   if (loading) {
     return (
