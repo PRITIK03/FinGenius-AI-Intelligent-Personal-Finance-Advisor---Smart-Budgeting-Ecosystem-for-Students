@@ -47,7 +47,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         raise credentials_exception
     
     if db_instance.db is not None:
-        user = await db_instance.db["users"].find_one({"_id": user_id})
+        user = await db_instance.db["users"].find_one({"_id": ObjectId(user_id)})
         if user is None:
             raise credentials_exception
         user["_id"] = str(user["_id"])
