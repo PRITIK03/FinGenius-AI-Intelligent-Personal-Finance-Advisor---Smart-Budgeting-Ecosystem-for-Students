@@ -106,7 +106,19 @@ const Dashboard = () => {
       setAdvice(advRes.data.advice || []);
       setCategories(catRes.data?.categories || []);
       setGoalsSummary(goalsRes.data);
-      setBudgetAlerts(alertsRes.data || []);
+
+      // Transform budget alerts to UI shape
+      const rawAlerts = alertsRes.data?.alerts || [];
+      const transformedAlerts = rawAlerts.map((alert: any) => ({
+        category: alert.category,
+        spent: alert.current_spending,
+        budget: alert.monthly_limit,
+        type: alert.percentage_used >= 100 ? 'exceeded' : 'warning',
+        message: alert.percentage_used >= 100
+          ? `You've exceeded your ${alert.category} budget by ${(alert.percentage_used - 100).toFixed(0)}%`
+          : `You've used ${alert.percentage_used.toFixed(0)}% of your ${alert.category} budget`
+      }));
+      setBudgetAlerts(transformedAlerts);
     } catch (error) {
       console.error("Error fetching data", error);
     } finally {
@@ -459,7 +471,7 @@ const Dashboard = () => {
             </div>
             <p className="text-slate-500 text-sm font-medium">Predicted Next Month</p>
             <h3 className="text-3xl font-bold text-slate-900">
-              ₹{prediction?.predicted_next_month || 'Calculating...'}
+              ₹{prediction?.predicted_next_month ?? 'Calculating...'}
             </h3>
           </motion.div>
 

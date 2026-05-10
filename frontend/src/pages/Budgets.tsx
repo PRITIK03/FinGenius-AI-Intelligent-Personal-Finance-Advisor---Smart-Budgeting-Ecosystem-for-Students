@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, Plus, Trash2, Edit2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { getBudgets, getBudgetAlerts, createBudget, updateBudget, deleteBudget } from '../api';
+import { getBudgets, getBudgetAlerts, getBudgetStatus, createBudget, updateBudget, deleteBudget } from '../api';
 
 interface Budget {
   _id: string;
@@ -48,22 +48,14 @@ const Budgets = () => {
 
   const fetchData = async () => {
     try {
-      const [budgetsRes, alertsRes] = await Promise.all([
+      const [budgetsRes, statusRes, alertsRes] = await Promise.all([
         getBudgets(),
+        getBudgetStatus(),
         getBudgetAlerts()
       ]);
       setBudgets(budgetsRes.data);
+      setStatus(statusRes.data);
       setAlerts(alertsRes.data?.alerts || []);
-      // Build initial status from budgets
-      const budgetStatus: BudgetStatus[] = budgetsRes.data.map((b: Budget) => ({
-        category: b.category,
-        monthly_limit: b.monthly_limit,
-        current_spending: 0,
-        remaining: b.monthly_limit,
-        percentage_used: 0,
-        alert_triggered: false
-      }));
-      setStatus(budgetStatus);
     } catch (error) {
       console.error('Error fetching budgets:', error);
     } finally {

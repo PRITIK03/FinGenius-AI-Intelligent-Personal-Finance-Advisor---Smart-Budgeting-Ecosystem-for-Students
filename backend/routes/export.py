@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
 from fastapi.responses import StreamingResponse
 from ..database import db_instance, get_mock_expenses
 from ..utils.auth import get_current_user
@@ -159,7 +159,7 @@ async def export_pdf(current_user: dict = Depends(get_current_user)):
     )
 
 @router.post("/import/csv")
-async def import_csv(file: bytes, current_user: dict = Depends(get_current_user)):
+async def import_csv(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     """Import expenses from CSV"""
     user_id = current_user.get("_id", "mock_user")
     
