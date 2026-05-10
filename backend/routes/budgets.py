@@ -58,36 +58,39 @@ async def get_budgets(current_user: dict = Depends(get_current_user)):
 @router.get("/status", response_model=list[BudgetStatus])
 async def get_budget_status(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("_id", "mock_user")
-    
-    # Get budgets
+
+    # Get budgets and expenses
     if db_instance.db is not None:
         budgets = await db_instance.db["budgets"].find({"user_id": user_id}).to_list(100)
         expenses = await db_instance.db["expenses"].find({"user_id": user_id}).to_list(1000)
     else:
         budgets = mock_budgets
         expenses = await get_mock_expenses()
-    
+
     # Calculate current month's spending
     now = datetime.now()
     month_start = datetime(now.year, now.month, 1)
-    
+
     result = []
     for budget in budgets:
         category = budget["category"]
         limit = budget["monthly_limit"]
         threshold = budget.get("alert_threshold", 80)
-        
+
         # Sum expenses for this category in current month
-        current_spending = sum(
-            e["amount"] for e in expenses
-            if e["category"] == category and datetime.fromisoformat(e["date"].replace('Z', '+00:00') if isinstance(e["date"], str) else e["date"]) >= month_start
-        ) if db_instance.db is not None else sum(
-            e["amount"] for e in expenses
-            if e["category"] == category
-        )
-        
+        current_spending = 0.0
+        for exp in expenses:
+            if exp["category"] != category:
+                continue
+            exp_date = exp["date"]
+            if isinstance(exp_date, str):
+                exp_date = datetime.fromisoformat(exp_date.replace('Z', '+00:00'))
+            if db_instance.db is not None and exp_date < month_start:
+                continue
+            current_spending += exp["amount"]
+
         percentage = (current_spending / limit * 100) if limit > 0 else 0
-        
+
         result.append(BudgetStatus(
             category=category,
             monthly_limit=limit,
@@ -96,7 +99,7 @@ async def get_budget_status(current_user: dict = Depends(get_current_user)):
             percentage_used=round(percentage, 2),
             alert_triggered=percentage >= threshold
         ))
-    
+
     return result
 
 @router.get("/alerts")
