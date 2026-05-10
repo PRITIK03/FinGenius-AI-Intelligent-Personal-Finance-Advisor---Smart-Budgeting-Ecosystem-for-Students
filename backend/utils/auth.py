@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from ..config import settings
 from ..database import db_instance
+from bson import ObjectId
 
 # JWT Configuration
 SECRET_KEY = "your-secret-key-change-this-in-production"  # Should be in env
