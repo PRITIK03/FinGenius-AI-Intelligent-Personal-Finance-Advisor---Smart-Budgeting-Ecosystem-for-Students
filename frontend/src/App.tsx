@@ -6,7 +6,6 @@ import Register from './pages/Register';
 import Goals from './pages/Goals';
 import Budgets from './pages/Budgets';
 import Analytics from './pages/Analytics';
-import './index.css';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

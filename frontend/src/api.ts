@@ -71,11 +71,7 @@ export const exportPDF = () => api.get('/export/pdf', { responseType: 'blob' });
 export const importCSV = (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  return api.post('/import/csv', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  return api.post('/import/csv', formData);
 };
 
 export default api;
