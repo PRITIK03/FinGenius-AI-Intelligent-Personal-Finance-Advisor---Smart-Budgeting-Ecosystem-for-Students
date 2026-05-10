@@ -164,7 +164,8 @@ async def import_csv(file: UploadFile = File(...), current_user: dict = Depends(
     user_id = current_user.get("_id", "mock_user")
     
     try:
-        content = file.decode('utf-8')
+        contents = await file.read()
+        content = contents.decode('utf-8')
         reader = csv.DictReader(io.StringIO(content))
         imported = 0
         
