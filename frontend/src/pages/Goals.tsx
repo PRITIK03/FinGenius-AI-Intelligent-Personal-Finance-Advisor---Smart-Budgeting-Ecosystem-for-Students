@@ -20,9 +20,6 @@ const Goals = () => {
   const [showContributeModal, setShowContributeModal] = useState<string | null>(null);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [contributeAmount, setContributeAmount] = useState('');
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('darkMode') === 'true';
-  });
 
   const [newGoal, setNewGoal] = useState({
     name: '',
@@ -50,14 +47,6 @@ const Goals = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   const handleCreateGoal = async (e: React.FormEvent) => {
     e.preventDefault();

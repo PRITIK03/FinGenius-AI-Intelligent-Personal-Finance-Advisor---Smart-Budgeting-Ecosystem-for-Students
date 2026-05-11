@@ -2,28 +2,27 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import { 
-  LayoutDashboard, 
-  PieChart as PieChartIcon, 
-  TrendingUp, 
-  PlusCircle, 
-  Wallet, 
-  ArrowUpRight, 
-  ArrowDownRight,
-  Sparkles,
-  Loader2,
-  Edit2,
-  Trash2,
-  Target,
-  Menu,
-  X,
-  Download,
-  LogOut,
-  Upload,
-  Bell,
-  Search,
-  Filter,
-  AlertCircle
-} from 'lucide-react';
+   LayoutDashboard, 
+   PieChart as PieChartIcon, 
+   TrendingUp, 
+   PlusCircle, 
+   Wallet, 
+   ArrowUpRight, 
+   ArrowDownRight,
+   Sparkles,
+   Edit2,
+   Trash2,
+   Target,
+   Menu,
+   X,
+   Download,
+   LogOut,
+   Upload,
+   Bell,
+   Search,
+   Filter,
+   AlertCircle
+ } from 'lucide-react';
 import { 
   AreaChart, 
   Area, 
@@ -859,6 +858,7 @@ const Dashboard = () => {
             </motion.div>
           </div>
         )}
+      </AnimatePresence>
 
       {/* CSV Import Modal */}
       <AnimatePresence>

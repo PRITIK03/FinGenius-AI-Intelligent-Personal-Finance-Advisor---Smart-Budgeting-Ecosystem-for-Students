@@ -14,21 +14,10 @@ const Analytics = () => {
   const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('darkMode') === 'true';
-  });
 
   useEffect(() => {
     fetchData();
   }, [timeRange]);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   const fetchData = async () => {
     try {
@@ -277,10 +266,9 @@ const Analytics = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', backgroundColor: 'rgba(255,255,255,0.95)'}}
-                  formatter={(value: number) => `₹${value.toFixed(0)}`}
-                />
+<Tooltip 
+                    contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', backgroundColor: 'rgba(255,255,255,0.95)'}}
+                  />
               </PieChart>
             </ResponsiveContainer>
             <div className="w-40 space-y-2">
