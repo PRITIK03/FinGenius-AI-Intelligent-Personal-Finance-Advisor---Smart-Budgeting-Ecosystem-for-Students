@@ -29,7 +29,7 @@ async def add_expense(
     if not expense_dict.get("date"):
         expense_dict["date"] = datetime.now()
     elif isinstance(expense_dict["date"], str):
-        expense_dict["date"] = datetime.fromisoformat(expense_dict["date"].replace('Z', '+00:00'))
+        expense_dict["date"] = datetime.fromisoformat(expense_dict["date"].replace('Z', '+00:00')).replace(tzinfo=None)
         
     if db_instance.db is not None:
         new_expense = await db_instance.db["expenses"].insert_one(expense_dict)
@@ -61,9 +61,9 @@ async def get_expenses(
     if start_date or end_date:
         date_filter = {}
         if start_date:
-            date_filter["$gte"] = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+            date_filter["$gte"] = datetime.fromisoformat(start_date.replace('Z', '+00:00')).replace(tzinfo=None)
         if end_date:
-            date_filter["$lte"] = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+            date_filter["$lte"] = datetime.fromisoformat(end_date.replace('Z', '+00:00')).replace(tzinfo=None)
         query_filter["date"] = date_filter
     
     if db_instance.db is not None:
@@ -72,10 +72,28 @@ async def get_expenses(
             exp["_id"] = str(exp["_id"])
         return expenses
     else:
-        # Filter mock data
-        expenses = mock_expenses_list if mock_expenses_list else await get_mock_expenses()
+        # Use in-memory mock list, populate from file if empty
+        global mock_expenses_list
+        if not mock_expenses_list:
+            mock_expenses_list.extend(await get_mock_expenses())
+        expenses = mock_expenses_list
         if category:
             expenses = [e for e in expenses if e.get("category") == category]
+        # Apply date filters
+        if start_date or end_date:
+            start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00')).replace(tzinfo=None) if start_date else None
+            end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00')).replace(tzinfo=None) if end_date else None
+            filtered = []
+            for e in expenses:
+                exp_date = e["date"]
+                if isinstance(exp_date, str):
+                    exp_date = datetime.fromisoformat(exp_date.replace('Z', '+00:00')).replace(tzinfo=None)
+                if start_dt and exp_date < start_dt:
+                    continue
+                if end_dt and exp_date > end_dt:
+                    continue
+                filtered.append(e)
+            expenses = filtered
         return expenses[:limit]
 
 @router.get("/{expense_id}", response_model=Expense)
@@ -112,7 +130,7 @@ async def update_expense(
         update_data["category"] = categorize_expense(update_data["description"])
     
     if "date" in update_data and isinstance(update_data["date"], str):
-        update_data["date"] = datetime.fromisoformat(update_data["date"].replace('Z', '+00:00'))
+        update_data["date"] = datetime.fromisoformat(update_data["date"].replace('Z', '+00:00')).replace(tzinfo=None)
     
     if db_instance.db is not None:
         result = await db_instance.db["expenses"].update_one(
@@ -162,9 +180,9 @@ async def get_summary(
     # Build date filter
     date_filter = {}
     if start_date:
-        date_filter["$gte"] = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+        date_filter["$gte"] = datetime.fromisoformat(start_date.replace('Z', '+00:00')).replace(tzinfo=None)
     if end_date:
-        date_filter["$lte"] = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+        date_filter["$lte"] = datetime.fromisoformat(end_date.replace('Z', '+00:00')).replace(tzinfo=None)
     
     query = {"user_id": user_id} if user_id != "mock_user" else {}
     if date_filter:
@@ -186,7 +204,25 @@ async def get_summary(
         formatted_summary = {item["_id"]: item["total_amount"] for item in summary}
         category_counts = {item["_id"]: item["count"] for item in summary}
     else:
-        expenses = mock_expenses_list if mock_expenses_list else await get_mock_expenses()
+        global mock_expenses_list
+        if not mock_expenses_list:
+            mock_expenses_list.extend(await get_mock_expenses())
+        expenses = mock_expenses_list
+        # Apply date filters if provided
+        if start_date or end_date:
+            start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00')).replace(tzinfo=None) if start_date else None
+            end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00')).replace(tzinfo=None) if end_date else None
+            filtered = []
+            for exp in expenses:
+                exp_date = exp["date"]
+                if isinstance(exp_date, str):
+                    exp_date = datetime.fromisoformat(exp_date.replace('Z', '+00:00')).replace(tzinfo=None)
+                if start_dt and exp_date < start_dt:
+                    continue
+                if end_dt and exp_date > end_dt:
+                    continue
+                filtered.append(exp)
+            expenses = filtered
         formatted_summary = {}
         category_counts = {}
         for exp in expenses:

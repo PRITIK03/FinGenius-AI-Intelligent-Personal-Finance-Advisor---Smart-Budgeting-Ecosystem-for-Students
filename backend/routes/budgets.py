@@ -4,6 +4,8 @@ from ..database import db_instance, get_mock_expenses
 from ..utils.auth import get_current_user
 from datetime import datetime, timedelta
 from bson import ObjectId
+# Import shared mock expenses list for consistency
+from ..routes.expenses import mock_expenses_list
 
 router = APIRouter()
 
@@ -64,8 +66,11 @@ async def get_budget_status(current_user: dict = Depends(get_current_user)):
         budgets = await db_instance.db["budgets"].find({"user_id": user_id}).to_list(100)
         expenses = await db_instance.db["expenses"].find({"user_id": user_id}).to_list(1000)
     else:
+        global mock_expenses_list
+        if not mock_expenses_list:
+            mock_expenses_list.extend(await get_mock_expenses())
+        expenses = mock_expenses_list
         budgets = mock_budgets
-        expenses = await get_mock_expenses()
 
     # Calculate current month's spending
     now = datetime.now()
@@ -84,8 +89,9 @@ async def get_budget_status(current_user: dict = Depends(get_current_user)):
                 continue
             exp_date = exp["date"]
             if isinstance(exp_date, str):
-                exp_date = datetime.fromisoformat(exp_date.replace('Z', '+00:00'))
-            if db_instance.db is not None and exp_date < month_start:
+                exp_date = datetime.fromisoformat(exp_date.replace('Z', '+00:00')).replace(tzinfo=None)
+            # Always filter by current month
+            if exp_date < month_start:
                 continue
             current_spending += exp["amount"]
 

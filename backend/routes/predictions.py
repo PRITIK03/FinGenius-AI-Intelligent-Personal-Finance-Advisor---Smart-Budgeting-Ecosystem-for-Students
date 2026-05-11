@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from ..database import db_instance, get_mock_expenses
 from ..utils.auth import get_current_user
+from ..routes.expenses import mock_expenses_list
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from datetime import datetime, timedelta
@@ -11,12 +12,15 @@ router = APIRouter()
 @router.get("/")
 async def predict_expenses(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("_id", "mock_user")
-    
+
     if db_instance.db is not None:
         query = {"user_id": user_id} if user_id != "mock_user" else {}
         expenses = await db_instance.db["expenses"].find(query).to_list(1000)
     else:
-        expenses = await get_mock_expenses()
+        # Use in-memory mock list, populate from file if empty
+        if not mock_expenses_list:
+            mock_expenses_list.extend(await get_mock_expenses())
+        expenses = mock_expenses_list
         
     if len(expenses) < 5:
         return {"predicted_next_month": 0, "message": "Not enough data for prediction", "trend": "stable"}
@@ -61,12 +65,15 @@ async def predict_expenses(current_user: dict = Depends(get_current_user)):
 async def predict_by_category(current_user: dict = Depends(get_current_user)):
     """Predict spending by category for next month"""
     user_id = current_user.get("_id", "mock_user")
-    
+
     if db_instance.db is not None:
         query = {"user_id": user_id} if user_id != "mock_user" else {}
         expenses = await db_instance.db["expenses"].find(query).to_list(1000)
     else:
-        expenses = await get_mock_expenses()
+        # Use in-memory mock list, populate from file if empty
+        if not mock_expenses_list:
+            mock_expenses_list.extend(await get_mock_expenses())
+        expenses = mock_expenses_list
     
     if len(expenses) < 5:
         return {"predictions": {}, "message": "Not enough data"}

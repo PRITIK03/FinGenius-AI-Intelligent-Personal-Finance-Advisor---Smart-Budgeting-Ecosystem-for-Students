@@ -14,10 +14,21 @@ const Analytics = () => {
   const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
 
   useEffect(() => {
     fetchData();
   }, [timeRange]);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   const fetchData = async () => {
     try {
@@ -103,28 +114,28 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center dark:bg-slate-900">
         <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto">
+    <div className="p-6 md:p-8 max-w-6xl mx-auto dark:bg-slate-900 min-h-screen">
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Analytics</h1>
-          <p className="text-slate-500">Deep insights into your spending patterns</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2 dark:text-white">Analytics</h1>
+          <p className="text-slate-500 dark:text-slate-400">Deep insights into your spending patterns</p>
         </div>
-        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl">
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl dark:bg-slate-800">
           {(['7d', '30d', '90d'] as const).map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                 timeRange === range
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
               {range === '7d' ? 'Last 7 Days' : range === '30d' ? 'Last 30 Days' : 'Last 90 Days'}

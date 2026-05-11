@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from ..database import db_instance, get_mock_expenses
 from ..config import settings
 from ..utils.auth import get_current_user
+from ..routes.expenses import mock_expenses_list
 import httpx
 from datetime import datetime
 
@@ -10,12 +11,15 @@ router = APIRouter()
 @router.get("/")
 async def get_ai_advice(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("_id", "mock_user")
-    
+
     if db_instance.db is not None:
         query = {"user_id": user_id} if user_id != "mock_user" else {}
         expenses = await db_instance.db["expenses"].find(query).to_list(100)
     else:
-        expenses = await get_mock_expenses()
+        # Use in-memory mock list, populate from file if empty
+        if not mock_expenses_list:
+            mock_expenses_list.extend(await get_mock_expenses())
+        expenses = mock_expenses_list
         
     if not expenses:
         return {"advice": ["Add some expenses to get personalized AI advice!"]}

@@ -32,6 +32,9 @@ async def get_mock_expenses():
     if os.path.exists(mock_path):
         with open(mock_path, "r") as f:
             data = json.load(f)
-            # Ensure date is in proper format if needed, though isoformat is fine for JSON
+            # Assign mock _id to each expense if not present
+            for i, expense in enumerate(data):
+                if '_id' not in expense:
+                    expense['_id'] = f"mock_{i+1}"
             return data
     return []

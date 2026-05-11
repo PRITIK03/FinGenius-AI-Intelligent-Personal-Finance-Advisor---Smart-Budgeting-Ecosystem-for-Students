@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
-from fastapi.responses import StreamingResponse
 from ..database import db_instance, get_mock_expenses
 from ..utils.auth import get_current_user
 from datetime import datetime
@@ -11,6 +10,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+# Import mock_expenses_list for mock mode
+from ..routes.expenses import mock_expenses_list
 
 router = APIRouter()
 
@@ -168,20 +169,34 @@ async def import_csv(file: UploadFile = File(...), current_user: dict = Depends(
         content = contents.decode('utf-8')
         reader = csv.DictReader(io.StringIO(content))
         imported = 0
-        
+
         for row in reader:
+            # Parse date
+            date_str = row.get("Date", datetime.now().isoformat())
+            try:
+                if isinstance(date_str, str):
+                    date_obj = datetime.fromisoformat(date_str.replace('Z', '+00:00')).replace(tzinfo=None)
+                else:
+                    date_obj = date_str
+            except (ValueError, TypeError):
+                date_obj = datetime.now()
+
             expense = {
                 "description": row.get("Description", ""),
                 "category": row.get("Category", "Others"),
                 "amount": float(row.get("Amount", 0)),
-                "date": row.get("Date", datetime.now().isoformat()),
+                "date": date_obj,
                 "user_id": user_id
             }
-            
+
             if db_instance.db is not None:
                 await db_instance.db["expenses"].insert_one(expense)
+            else:
+                # Mock mode: add to in-memory list
+                expense["_id"] = f"mock_{len(mock_expenses_list) + 1}"
+                mock_expenses_list.append(expense)
             imported += 1
-        
+
         return {"message": f"Successfully imported {imported} expenses"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Import failed: {str(e)}")
