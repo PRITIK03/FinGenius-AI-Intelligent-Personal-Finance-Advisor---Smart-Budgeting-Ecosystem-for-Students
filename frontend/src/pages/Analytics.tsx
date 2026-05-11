@@ -149,56 +149,56 @@ const Analytics = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-50 rounded-xl">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-blue-50 rounded-xl dark:bg-blue-900/30">
+              <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm text-slate-500">Total Spending</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">Total Spending</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900">₹{summary?.total_spending?.toFixed(0) || 0}</p>
-          <p className="text-xs text-slate-400 mt-1">{summary?.total_transactions || 0} transactions</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">₹{summary?.total_spending?.toFixed(0) || 0}</p>
+          <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">{summary?.total_transactions || 0} transactions</p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-emerald-50 rounded-xl">
-              <Calendar className="w-5 h-5 text-emerald-600" />
+            <div className="p-2 bg-emerald-50 rounded-xl dark:bg-emerald-900/30">
+              <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <span className="text-sm text-slate-500">Avg. Daily</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">Avg. Daily</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900">
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">
             ₹{(summary?.total_spending / (timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90))?.toFixed(0) || 0}
           </p>
-          <p className="text-xs text-slate-400 mt-1">per day</p>
+          <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">per day</p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className={`p-2 rounded-xl ${weeklyComparison.change > 0 ? 'bg-red-50' : 'bg-emerald-50'}`}>
+            <div className={`p-2 rounded-xl ${weeklyComparison.change > 0 ? 'bg-red-50 dark:bg-red-900/30' : 'bg-emerald-50 dark:bg-emerald-900/30'}`}>
               {weeklyComparison.change > 0 ? (
-                <ArrowUpRight className="w-5 h-5 text-red-600" />
+                <ArrowUpRight className="w-5 h-5 text-red-600 dark:text-red-400" />
               ) : (
-                <ArrowDownRight className="w-5 h-5 text-emerald-600" />
+                <ArrowDownRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               )}
             </div>
-            <span className="text-sm text-slate-500">vs Last Week</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">vs Last Week</span>
           </div>
-          <p className={`text-2xl font-bold ${weeklyComparison.change > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+          <p className={`text-2xl font-bold ${weeklyComparison.change > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
             {weeklyComparison.change > 0 ? '+' : ''}{weeklyComparison.change.toFixed(1)}%
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">
             ₹{weeklyComparison.thisWeekTotal.toFixed(0)} this week
           </p>
         </motion.div>
@@ -207,18 +207,18 @@ const Analytics = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+          className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-50 rounded-xl">
-              <BarChart3 className="w-5 h-5 text-purple-600" />
+            <div className="p-2 bg-purple-50 rounded-xl dark:bg-purple-900/30">
+              <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <span className="text-sm text-slate-500">Top Category</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">Top Category</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900">
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">
             {categoryData.length > 0 ? categoryData[0].name : 'N/A'}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">
             {categoryData.length > 0 ? `${categoryData[0].percentage}% of total` : ''}
           </p>
         </motion.div>
@@ -227,8 +227,8 @@ const Analytics = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Daily Spending Trend */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Daily Spending Trend</h3>
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+          <h3 className="text-lg font-bold text-slate-900 mb-6 dark:text-white">Daily Spending Trend</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dailyData}>
@@ -242,7 +242,8 @@ const Analytics = () => {
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
                 <Tooltip
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}}
+                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', backgroundColor: 'rgba(255,255,255,0.95)'}}
+                  labelStyle={{color: '#1e293b'}}
                 />
                 <Line
                   type="monotone"
@@ -258,8 +259,8 @@ const Analytics = () => {
         </div>
 
         {/* Category Distribution */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Category Distribution</h3>
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+          <h3 className="text-lg font-bold text-slate-900 mb-6 dark:text-white">Category Distribution</h3>
           <div className="h-[300px] flex items-center">
             <ResponsiveContainer width="60%" height="100%">
               <PieChart>
@@ -277,7 +278,7 @@ const Analytics = () => {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'}}
+                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', backgroundColor: 'rgba(255,255,255,0.95)'}}
                   formatter={(value: number) => `₹${value.toFixed(0)}`}
                 />
               </PieChart>
@@ -286,7 +287,7 @@ const Analytics = () => {
               {categoryData.map((entry, index) => (
                 <div key={entry.name} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{backgroundColor: COLORS[index % COLORS.length]}} />
-                  <span className="text-xs font-medium text-slate-600">{entry.name}</span>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300">{entry.name}</span>
                   <span className="text-xs text-slate-400 ml-auto">{entry.percentage}%</span>
                 </div>
               ))}
@@ -299,24 +300,24 @@ const Analytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Predictions */}
         {predictions?.predictions && Object.keys(predictions.predictions).length > 0 && (
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <PieChartIcon className="w-5 h-5 text-purple-600" />
+          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-800 dark:border-slate-700">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 dark:text-white">
+              <PieChartIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               Predicted Next Month
             </h3>
-            <p className="text-sm text-slate-500 mb-4">
+            <p className="text-sm text-slate-500 mb-4 dark:text-slate-400">
               Based on your spending patterns
             </p>
             <div className="space-y-3">
               {Object.entries(predictions.predictions).map(([category, amount]) => (
-                <div key={category} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                  <span className="font-medium text-slate-700">{category}</span>
-                  <span className="font-bold text-slate-900">₹{(amount as number).toFixed(0)}</span>
+                <div key={category} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl dark:bg-slate-700">
+                  <span className="font-medium text-slate-700 dark:text-slate-300">{category}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-200">₹{(amount as number).toFixed(0)}</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-100">
-                <span className="font-semibold text-purple-700">Total Predicted</span>
-                <span className="font-bold text-purple-700">₹{predictions.total_predicted?.toFixed(0)}</span>
+              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-100 dark:bg-purple-900/30 dark:border-purple-800">
+                <span className="font-semibold text-purple-700 dark:text-purple-300">Total Predicted</span>
+                <span className="font-bold text-purple-700 dark:text-purple-300">₹{predictions.total_predicted?.toFixed(0)}</span>
               </div>
             </div>
           </div>
