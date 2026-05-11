@@ -130,6 +130,14 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
