@@ -511,7 +511,7 @@ const Dashboard = () => {
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}>
-            <h4 className="text-lg font-bold text-slate-900 mb-6">Spending Trend</h4>
+            <h4 className={`text-lg font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Spending Trend</h4>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
@@ -521,11 +521,11 @@ const Dashboard = () => {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#f1f5f9'} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: darkMode ? '#94a3b8' : '#94a3b8', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: darkMode ? '#94a3b8' : '#94a3b8', fontSize: 12}} />
                   <Tooltip 
-                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
+                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: darkMode ? '#1e293b' : '#fff', color: darkMode ? '#fff' : '#000'}}
                   />
                   <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
                 </AreaChart>
@@ -534,7 +534,7 @@ const Dashboard = () => {
           </div>
 
           <div className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border border-slate-100'} p-6 rounded-3xl shadow-sm`}>
-            <h4 className="text-lg font-bold text-slate-900 mb-6">Category Distribution</h4>
+            <h4 className={`text-lg font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Category Distribution</h4>
             <div className="h-[300px] flex items-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -552,7 +552,7 @@ const Dashboard = () => {
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
+                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: darkMode ? '#1e293b' : '#fff', color: darkMode ? '#fff' : '#000'}}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -560,7 +560,7 @@ const Dashboard = () => {
                 {pieData.map((entry, index) => (
                   <div key={entry.name} className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
-                    <span className="text-xs font-medium text-slate-600">{entry.name}</span>
+                    <span className={`text-xs font-medium ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{entry.name}</span>
                   </div>
                 ))}
               </div>
