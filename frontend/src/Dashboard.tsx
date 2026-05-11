@@ -655,33 +655,33 @@ const Dashboard = () => {
             </div>
             <div className="space-y-4">
               {filteredExpenses.slice(0, 5).map((exp, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-2xl transition-colors group">
+                <div key={idx} className={`flex items-center justify-between p-3 hover:${darkMode ? 'bg-slate-700' : 'bg-slate-50'} rounded-2xl transition-colors group ${darkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-50'}`}>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-white transition-colors">
+                    <div className={`w-12 h-12 ${darkMode ? 'bg-slate-700 group-hover:bg-slate-600' : 'bg-slate-100 group-hover:bg-white'} rounded-xl flex items-center justify-center transition-colors`}>
                       <span className="text-xl">
                         {categoryIcons[exp.category] || '📦'}
                       </span>
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">{exp.description}</p>
-                      <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{exp.category} • {new Date(exp.date).toLocaleDateString()}</p>
+                      <p className={`font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{exp.description}</p>
+                      <p className={`text-xs font-medium uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-400'}`}>{exp.category} • {new Date(exp.date).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="text-right flex items-center gap-3">
                     <div>
-                      <p className="font-bold text-slate-900">₹{exp.amount}</p>
-                      <p className="text-xs text-slate-400">{new Date(exp.date).toLocaleDateString()}</p>
+                      <p className={`font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>₹{exp.amount}</p>
+                      <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-400'}`}>{new Date(exp.date).toLocaleDateString()}</p>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => startEditing(exp)}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all dark:hover:bg-blue-900/30"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteExpense(exp._id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all dark:hover:bg-red-900/30"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -709,38 +709,38 @@ const Dashboard = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl"
+              className="relative bg-white dark:bg-slate-800 w-full max-w-md p-8 rounded-[32px] shadow-2xl"
             >
-              <h3 className="text-2xl font-bold text-slate-900 mb-6">Add New Expense</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Add New Expense</h3>
               <form onSubmit={handleAddExpense} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Amount (₹)</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Amount (₹)</label>
                   <input 
                     type="number" 
                     required
                     value={newExpense.amount}
                     onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
                     placeholder="e.g. 250"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Description</label>
                   <input 
                     type="text" 
                     required
                     value={newExpense.description}
                     onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
                     placeholder="What did you buy?"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Category (Optional)</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Category (Optional)</label>
                   <select
                     value={newExpense.category}
                     onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-slate-900 dark:text-white"
                   >
                     <option value="">Auto-categorize</option>
                     {categories.map((cat) => (
@@ -749,20 +749,20 @@ const Dashboard = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Date</label>
                   <input 
                     type="date" 
                     required
                     value={newExpense.date}
                     onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-slate-900 dark:text-white"
                   />
                 </div>
                 <div className="flex gap-3 pt-2">
                   <button 
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 px-4 py-3 border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all"
+                    className="flex-1 px-4 py-3 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                   >
                     Cancel
                   </button>
