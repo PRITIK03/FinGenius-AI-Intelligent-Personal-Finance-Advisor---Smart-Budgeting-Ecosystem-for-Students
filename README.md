@@ -1,4 +1,4 @@
-# FinGenius AI: Intelligent Personal Finance Advisor
+# FinGenius AI: Intelligent Personal Finance Advisor.
 
 FinGenius AI is a smart, AI-powered personal finance advisor designed specifically for students. It helps users track expenses, analyze spending behavior, predict future savings, and generate personalized financial advice.
 
