@@ -356,7 +356,7 @@ FinGenius-AI/
 
 # 💡 Final Tip
 
-Focus more on:
+Focus more on-
 
 * UI/UX (this will impress the most)
 * Clean logic
