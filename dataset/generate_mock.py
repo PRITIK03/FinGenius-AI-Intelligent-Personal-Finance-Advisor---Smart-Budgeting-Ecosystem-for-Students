@@ -4,7 +4,7 @@ import random
 
 def generate_mock_data():
     categories = {
-        ""Food": ["Lunch at canteen", "Swiggy Dinner", "Zomato Pizza", "Coffee at Starbucks", "Evening Snacks", "Maggi & Eggs", "Restaurant Visit"],
+        "Food": ["Lunch at canteen", "Swiggy Dinner", "Zomato Pizza", "Coffee at Starbucks", "Evening Snacks", "Maggi & Eggs", "Restaurant Visit"],
         "Travel": ["Ola to College", "Uber Auto", "Metro Recharge", "Petrol for Bike", "Bus Fare", "Train Ticket"],
         "Education": ["Books for Sem 4", "Udemy Python Course", "Stationery Purchase", "Exam Fee", "Library Fine"],
         "Entertainment": ["Movie Ticket", "Netflix Subscription", "Gaming Parlor", "Club Entry", "Spotify Premium"],
